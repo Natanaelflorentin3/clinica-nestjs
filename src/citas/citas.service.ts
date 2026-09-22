@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common'
 import { PrismaService } from '../prisma/prisma.service'
 import { PacientesService } from '../pacientes/pacientes.service'
-import { EstadoCita } from '../generated/prisma/client'
+import { CreateCitaDto } from '../dto/create-cita.dto'
 
 @Injectable()
 export class CitasService {
@@ -10,11 +10,11 @@ export class CitasService {
     private readonly pacientesService: PacientesService
   ) {}
 
-  async create(data: { fecha: Date; pacienteId: number; medicoId: number; estado?: EstadoCita }) {
-    const paciente = await this.pacientesService.findOne(data.pacienteId)
+  async create(dto: CreateCitaDto) {
+    const paciente = await this.pacientesService.findOne(dto.pacienteId)
     if (!paciente) throw new NotFoundException('El paciente no existe')
 
-    return this.prisma.cita.create({ data })
+    return this.prisma.cita.create({ data: dto })
   }
 
   findAll() {
