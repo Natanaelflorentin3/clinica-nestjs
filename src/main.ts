@@ -1,3 +1,4 @@
+import { LoggingInterceptor } from './common/logging.interceptor'
 import 'dotenv/config'
 import { NestFactory } from '@nestjs/core';
 import { AppModule, ObserveInstrument } from './app.module';
@@ -18,6 +19,7 @@ async function bootstrap() {
   });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }))
   app.useGlobalFilters(new PrismaExceptionFilter())
+  app.useGlobalInterceptors(new LoggingInterceptor())
   const document = SwaggerModule.createDocument(app, config)
 SwaggerModule.setup('api/docs', app, document)
   await app.listen(process.env.PORT ?? 3000);
