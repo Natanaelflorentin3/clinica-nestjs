@@ -1,4 +1,5 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import * as bcrypt from 'bcryptjs'
 import * as jwt from 'jsonwebtoken'
 import { PrismaService } from '../prisma/prisma.service'
@@ -6,7 +7,10 @@ import { Role } from '../generated/prisma/client'
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService
+  ) {}
 
   async register(email: string, password: string, role: Role) {
     const passwordHash = await bcrypt.hash(password, 10)
@@ -23,7 +27,7 @@ export class AuthService {
     }
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET as string,
+      this.configService.get<string>('JWT_SECRET') as string,
       { expiresIn: '8h' }
     )
     return { token }

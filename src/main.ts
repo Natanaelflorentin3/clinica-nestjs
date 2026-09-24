@@ -5,6 +5,7 @@ import { AppModule, ObserveInstrument } from './app.module';
 import { ValidationPipe } from '@nestjs/common'
 import { PrismaExceptionFilter } from './prisma/prisma-exception.filter';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
+import { ConfigService } from '@nestjs/config'
 async function bootstrap() {
   const config = new DocumentBuilder()
   .setTitle('Clínica Salud Integral')
@@ -22,6 +23,7 @@ async function bootstrap() {
   app.useGlobalInterceptors(new LoggingInterceptor())
   const document = SwaggerModule.createDocument(app, config)
 SwaggerModule.setup('api/docs', app, document)
-  await app.listen(process.env.PORT ?? 3000);
+const configService = app.get(ConfigService)
+await app.listen(configService.get<number>('PORT') as number)
 }
 void bootstrap();
