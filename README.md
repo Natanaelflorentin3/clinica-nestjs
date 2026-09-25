@@ -112,3 +112,19 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+
+
+
+
+
+## Pipeline de un request — POST /citas
+
+Recorrido completo de una petición a `POST /citas`, en el orden en que Nest la procesa:
+
+1. **JwtAuthGuard / RolesGuard** — verifica que haya un token válido en el header `Authorization` y que el rol del usuario tenga permiso para este endpoint.
+2. **LoggingInterceptor** — arranca a medir el tiempo de respuesta, antes de que el request siga su camino.
+3. **ValidationPipe** — valida el body contra `CreateCitaDto` (fecha, pacienteId, medicoId, estado). Si algo no cumple, responde 400 automáticamente y el request nunca llega al Controller.
+4. **CitasController → CitasService** — el Controller delega en el Service, que ejecuta la lógica de negocio: llama a `PacientesService.findOne()` (inyectado desde otro módulo) para confirmar que el paciente existe antes de crear la cita.
+5. **PrismaExceptionFilter** — si Prisma lanza un error (por ejemplo un P2025 o P2002), el filtro lo traduce a una respuesta HTTP consistente en vez de un 500 genérico.
+6. **LoggingInterceptor** — registra en la terminal el método, la ruta y el tiempo total transcurrido, justo antes de que la respuesta salga al cliente.
